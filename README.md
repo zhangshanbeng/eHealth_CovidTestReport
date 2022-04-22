@@ -1,0 +1,2 @@
+# eHealth_CovidTestReport
+通过苏康码核酸查询接口获取个人省内核酸记录
