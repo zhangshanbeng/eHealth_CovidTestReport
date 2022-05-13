@@ -64,9 +64,10 @@ def judge_report(report: list, dateFlag: int):
 
 if __name__ == '__main__':
     my_report = get_report()
-    # my_dateFlag可以设置为你核酸采集那天的日期
-    # 例如我2022年1月1日做了一次核酸，那么my_dateFlag就设置为20220101
-    my_dateFlag = 20220101
+    # my_dateFlag可以设置为你核酸采集那天的0点
+    # 例如：我在2022年1月1日的15时20分做了一次核酸
+    # 那么my_dateFlag就可以设置为202201010000
+    my_dateFlag = 202201010000
     
     while True:
         if judge_report(my_report, my_dateFlag):
