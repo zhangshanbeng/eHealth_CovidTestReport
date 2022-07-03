@@ -58,4 +58,7 @@ https://jsstm.jszwfw.gov.cn/jkmIndex.html?token=XXX&uuid=XXX
 
 ### 7. 更新记录
 
-2022/5/13 今天自己在使用的过程中，运行之后立刻就收到了邮件，但是并不是报告出来了，观察返回的数据后发现，发现是苏康码对timeFlag字段进行了更新，以前的timeFlag格式为YYYYMMDD，现在是YYYYMMDDHHMM，12位数肯定比8为数大啦，这就是问题所在，因此，my_timeFlag在设置的时候加上0000(0时0分)即可
+2022/5/13: 今天自己在使用的过程中，运行之后立刻就收到了邮件，但是并不是报告出来了，观察返回的数据后发现，发现是苏康码对timeFlag字段进行了更新，以前的timeFlag格式为YYYYMMDD，现在是YYYYMMDDHHMM，12位数肯定比8为数大啦，这就是问题所在，因此，my_timeFlag在设置的时候加上0000(0时0分)即可
+
+2022/7/4: 本项目可以正常使用
+
