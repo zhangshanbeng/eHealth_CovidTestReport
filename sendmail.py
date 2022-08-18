@@ -5,12 +5,9 @@ from email.header import Header
 
 def send_email(mail_title, mail_body, receiver):
     sender = 'XXX@XXX.com'
-    receiver = receiver
     smtpServer = 'smtp.XXX.com'
-    username = 'XXX@XXX.com'
+    username = 'XXX'
     password = 'XXX'
-    mail_title = mail_title
-    mail_body = mail_body
 
     message = MIMEText(mail_body, 'plain', 'utf-8')
     message["Accept-Language"] = "zh-CN"
@@ -31,4 +28,4 @@ def send_email(mail_title, mail_body, receiver):
 
 
 if __name__ == '__main__':
-    sent_email("test2021/6/30", "test", "zhangshanbeng@gmail.com")
+    send_email("test", "test", "zhangshanbeng@gmail.com")

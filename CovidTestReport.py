@@ -8,14 +8,46 @@ headers_jsstm = {'content-type': 'application/x-www-form-urlencoded; charset=UTF
 headers_jshscx = {'Content-Type': 'application/json;charset=UTF-8'}
 
 
-def get_abc() -> str:
-    data = {
-        'token': 'YOUR_SKM_TOKEN',
-        'uuid': 'YOUR_SKM_UUID',
-    }
-    user_auth_token = 'https://jsstm.jszwfw.gov.cn/jkm/2/userAuth_token'
-    with requests.post(user_auth_token, headers=headers_jsstm, data=data) as res:
-        return res.json()['res']['userdetail']['abc']
+class SKM:
+    def __init__(self, token: str, uuid: str):
+        self.token = token
+        self.uuid = uuid
+        self.abc = self.get_abc()
+
+    def get_abc(self) -> str:
+        user_auth_token = 'https://jsstm.jszwfw.gov.cn/jkm/2/userAuth_token'
+        data = {
+            'token': self.token,
+            'uuid': self.uuid
+        }
+        with requests.post(user_auth_token, headers=headers_jsstm, data=data) as res:
+            res_json = res.json()
+            if res_json['resCode'] == 0:
+                return res_json['res']['userdetail']['abc']
+
+    # 江苏卫健委接口
+    # 通过苏康码abc字段获取卫健委secret令牌，验证后获取最近的核酸数据(多条)
+    def query_latest_report_by_jsehealth(self) -> dict:
+        """
+        :return: {'id': None, 'cardNo': '', 'name': '', 'collectUnit': '', 'collectTime': '2022-07-07 07:07', 'checkUnit': '', 'checkTime': None, 'checkResult': '阴性', 'area': '', 'collectCity': '', 'timeFlag': 202207070707}
+        """
+        secret = get_secret(self.abc)
+        auth_info = auth_secret(secret)
+        report = query_report(auth_info)
+        return report[0]
+
+    # 苏康码接口
+    # 只需要abc字段即可，但是只能获取最近一次核酸数据
+    def query_hs_by_jsstm(self) -> dict:
+        """
+        :return: {'area': '', 'collectTime': '2022-07-07 07:07', 'collectUnit': '', 'collectCity': '', 'checkResult': '阴性', 'checkUnit': ''}
+        """
+        url = 'https://jsstm.jszwfw.gov.cn/healthCode/queryHs'
+        data = {'abc': self.abc}
+        with requests.post(url, headers=headers_jsstm, data=data) as res:
+            res_json = res.json()
+            if res_json['resCode'] == 0:
+                return res_json['res']['hs']
 
 
 def get_secret(abc: str) -> str:
@@ -43,35 +75,46 @@ def query_report(data: dict) -> list:
         return report_list
 
 
-def get_report() -> list:
-    abc = get_abc()
-    secret = get_secret(abc)
-    auth_info = auth_secret(secret)
-    report = query_report(auth_info)
-    return report
+def read_config() -> dict:
+    with open('config.json', 'r') as f:
+        return json.load(f)
 
 
-def judge_report(report: list, dateFlag: int):
-    if report[0]['timeFlag'] >= dateFlag:
-        # 可选项，发送邮件，当然你也可以选择Server酱or企业微信BOT等
-        send_email('核酸结果已出', str(report[0]), 'YOUR_EMAIL_ADDRESS')
-        return True
-    else:
-        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f'{now} 核酸结果未出')
-        return False
+def str2timestamp(time_str: str) -> int:
+    time_struct = time.strptime(time_str, '%Y-%m-%d %H:%M')
+    return int(time.mktime(time_struct))
 
 
 if __name__ == '__main__':
-    my_report = get_report()
-    # my_dateFlag可以设置为你核酸采集那天的0点
-    # 例如：我在2022年1月1日的15时20分做了一次核酸
-    # 那么my_dateFlag就可以设置为202201010000
-    my_dateFlag = 202201010000
-    
+    config = read_config()
+    # 苏康码token
+    token = config['token']
+    # 苏康码uuid
+    uuid = config['uuid']
+    # 日期
+    time_point = str2timestamp(config['time'])
+    # 是否发送邮件
+    is_send_email = config['need_mail']
+    if is_send_email:
+        # 邮件接收者
+        receiver = config['receiver']
+    # 查询间隔
+    interval = config['interval']
+
+    user = SKM(token, uuid)
+    # 使用苏康码接口
+    latest_report = user.query_hs_by_jsstm()
+
     while True:
-        if judge_report(my_report, my_dateFlag):
+        collect_time = str2timestamp(latest_report['collectTime'])
+        if collect_time >= time_point:
+            print('核酸结果已出')
+            print(latest_report)
+            if is_send_email:
+                send_email('核酸结果已出', str(latest_report), receiver)
             break
-        time.sleep(60)
-        my_report = get_report()
-    print('核酸结果已出')
+        else:
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f'{now} 核酸结果未出')
+            latest_report = user.query_hs_by_jsstm()
+            time.sleep(interval)
