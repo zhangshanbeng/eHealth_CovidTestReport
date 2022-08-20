@@ -75,7 +75,7 @@ https://jsstm.jszwfw.gov.cn/jkmIndex.html?token=XXX&uuid=XXX
 
 ### 6. 一些新的发现
 
-苏康码的主管部门和开发单位应开设反馈渠道，直面群众意见！
+谨言慎行
 
 ### 7. 更新记录
 
