@@ -20,6 +20,16 @@ https://jsstm.jszwfw.gov.cn/jkmIndex.html?token=XXX&uuid=XXX
 
 *可选项：配置好你的通知设置，如：邮件，Server酱，企业微信BOT
 
+---分割线---
+
+`2022/8/23`更新：
+
+i. token字段为必选项，uuid为可选项（代码我就不更新了）
+
+因为userAuth_token过程中，只需传入token即可
+
+ii. 苏州公安的线上申领入口关闭了，token只能通过抓包获取，具体如何抓、在哪抓，咱就不介绍了
+
 ### 2. 项目运行
 
 配置`config.json`
