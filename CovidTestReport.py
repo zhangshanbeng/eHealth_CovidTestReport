@@ -81,7 +81,7 @@ def read_config() -> dict:
 
 
 def str2timestamp(time_str: str) -> int:
-    time_struct = time.strptime(time_str, '%Y-%m-%d %H:%M')
+    time_struct = time.strptime(time_str, '%Y-%m-%d %H:%M:%S')
     return int(time.mktime(time_struct))
 
 
@@ -106,6 +106,8 @@ if __name__ == '__main__':
     latest_report = user.query_hs_by_jsstm()
 
     while True:
+        # 苏康码接口还是collectTime
+        # 卫健委接口就得换成checkTime
         collect_time = str2timestamp(latest_report['collectTime'])
         if collect_time >= time_point:
             print('核酸结果已出')

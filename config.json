@@ -1,7 +1,7 @@
 {
   "token": "YOUR_TOKEN",
   "uuid": "YOUR_UUID",
-  "time": "2022-07-07 07:07",
+  "time": "2022-07-07 07:07:07",
   "interval": 60,
   "need_mail": false,
   "receiver": "YOUR_MAIL"
